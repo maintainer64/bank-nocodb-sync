@@ -1,0 +1,29 @@
+# Compiled JavaScript and Source Maps
+dist/
+build/
+build.zip
+out/
+
+# Node.js modules
+node_modules/
+
+# Editor and OS specific files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+
+# Environment variables
+.env
+.env.local
+
+# Test coverage reports
+coverage/
+
+# TypeScript specific
+*.tsbuildinfo
