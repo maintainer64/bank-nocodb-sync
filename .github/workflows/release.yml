@@ -49,57 +49,50 @@ jobs:
           git tag -a "v${{ steps.current_version.outputs.current_version }}" -m "Release v${{ steps.current_version.outputs.current_version }}"
           git push origin "v${{ steps.current_version.outputs.current_version }}"
 
-      - name: Build and Release
-        if: steps.version_check.outputs.version_changed == 'true'
-        runs-on: ubuntu-latest
-        needs: check-version-and-release
+  build-and-release:
+    runs-on: ubuntu-latest
+    needs: check-version-and-release
+    if: needs.check-version-and-release.outputs.version_changed == 'true'
 
-        steps:
-          - name: Checkout code
-            uses: actions/checkout@v4
-            with:
-              ref: "v${{ needs.check-version-and-release.outputs.current_version }}"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: "v${{ needs.check-version-and-release.outputs.current_version }}"
 
-          - name: Setup Node.js
-            uses: actions/setup-node@v4
-            with:
-              node-version: '20'
-              cache: 'yarn'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
 
-          - name: Install dependencies
-            run: yarn install --frozen-lockfile
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-          - name: Build application
-            run: yarn build
+      - name: Build application
+        run: yarn build
 
-          - name: Create ZIP archive
-            run: |
-              mkdir -p dist
-              mv build.zip application-v${{ needs.check-version-and-release.outputs.current_version }}.zip
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.check-version-and-release.outputs.current_version }}
+          release_name: Release v${{ needs.check-version-and-release.outputs.current_version }}
+          body: |
+            Automated release for version ${{ needs.check-version-and-release.outputs.current_version }}
+            
+            Chrome Extension for syncing bank transactions with NocoDB.
+          draft: false
+          prerelease: false
 
-          - name: Create Release
-            id: create_release
-            uses: actions/create-release@v1
-            env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            with:
-              tag_name: v${{ needs.check-version-and-release.outputs.current_version }}
-              release_name: Release v${{ needs.check-version-and-release.outputs.current_version }}
-              body: |
-                Automated release for version ${{ needs.check-version-and-release.outputs.current_version }}
-                
-                Changes in this release:
-                - Application built from source
-                - Includes production-ready build artifacts
-              draft: false
-              prerelease: false
-
-          - name: Upload Release Asset
-            uses: actions/upload-release-asset@v1
-            env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            with:
-              upload_url: ${{ steps.create_release.outputs.upload_url }}
-              asset_path: ./application-v${{ needs.check-version-and-release.outputs.current_version }}.zip
-              asset_name: application-v${{ needs.check-version-and-release.outputs.current_version }}.zip
-              asset_content_type: application/zip
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build.zip
+          asset_name: bank-nocodb-sync-v${{ needs.check-version-and-release.outputs.current_version }}.zip
+          asset_content_type: application/zip
