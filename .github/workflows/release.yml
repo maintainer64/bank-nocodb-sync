@@ -11,6 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
 
+    # Expose values to downstream jobs via `needs.check-version-and-release.outputs.*`
+    outputs:
+      version_changed: ${{ steps.version_check.outputs.version_changed }}
+      current_version: ${{ steps.current_version.outputs.current_version }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -71,6 +76,10 @@ jobs:
 
       - name: Build application
         run: yarn build
+
+      # Make sure build.zip exists
+      - name: Zip build
+        run: zip -r build.zip ./build
 
       - name: Create Release
         id: create_release
