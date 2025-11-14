@@ -73,7 +73,7 @@ get_latest_release() {
     log_info "Количество ассетов: $assets_count"
 
     # Ищем ZIP архив
-    zip_asset=$(echo "$response" | jq -r '.assets[] | select(.name | endswith(".zip")) | {name, download_url, size}')
+    zip_asset=$(echo "$response" | jq -r '.assets[] | select(.name | endswith(".zip")) | {name, browser_download_url, size}')
 
     if [ -z "$zip_asset" ] || [ "$zip_asset" = "null" ]; then
         log_error "ZIP архив не найден в релизе"
@@ -85,12 +85,10 @@ get_latest_release() {
     fi
 
     asset_name=$(echo "$zip_asset" | jq -r '.name')
-    download_url=$(echo "$zip_asset" | jq -r '.download_url')
+    download_url=$(echo "$zip_asset" | jq -r '.browser_download_url')
     asset_size=$(echo "$zip_asset" | jq -r '.size')
 
     log_info "Найден ZIP архив: $asset_name ($((asset_size/1024/1024)) MB)"
-
-    echo "$download_url"
 }
 
 # Скачивание и распаковка
@@ -102,7 +100,7 @@ download_and_extract() {
     # Создаем имя файла из названия репозитория
     local repo_name=$(basename "$repo")
     local zip_file="$home_dir/${repo_name}_latest.zip"
-    local extract_dir="$home_dir/${repo_name}_latest"
+    local extract_dir="$home_dir/${repo_name}"
 
     log_info "Скачиваем в: $zip_file"
 
@@ -164,7 +162,7 @@ main() {
     check_dependencies
 
     # Получаем URL для скачивания
-    download_url=$(get_latest_release "$repo")
+    get_latest_release "$repo"
 
     # Скачиваем и распаковываем
     download_and_extract "$download_url" "$repo"
