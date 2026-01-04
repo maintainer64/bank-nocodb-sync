@@ -1,13 +1,24 @@
 export interface Transaction {
     name: string;
+    description?: string;
+    type: "Доход" | "Расход";
     date: string;
-    card_number: string;
     amount: number;
-    category: string;
-    skip: boolean;
-    comment?: string;
-    accounts: string;
     uniform_id: string;
+    is_deleted: boolean;
+    account_uniform_id: string;
+}
+
+export interface TransactionWithId extends Transaction {
+    id: number;
+    category?: string;
+    subcategory?: string;
+    epic?: string;
+}
+
+export interface Category {
+    id: number;
+    name?: string;
 }
 
 export interface Account {

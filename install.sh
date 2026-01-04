@@ -91,8 +91,8 @@ get_latest_release() {
     log_info "Найден ZIP архив: $asset_name ($((asset_size/1024/1024)) MB)"
 }
 
-# Скачивание и распаковка
-download_and_extract() {
+# Скачивание
+download() {
     local download_url=$1
     local repo=$2
     local home_dir="$HOME"
@@ -100,7 +100,6 @@ download_and_extract() {
     # Создаем имя файла из названия репозитория
     local repo_name=$(basename "$repo")
     local zip_file="$home_dir/${repo_name}_latest.zip"
-    local extract_dir="$home_dir/${repo_name}"
 
     log_info "Скачиваем в: $zip_file"
 
@@ -118,11 +117,44 @@ download_and_extract() {
 
     local file_size=$(stat -f%z "$zip_file" 2>/dev/null || stat -c%s "$zip_file" 2>/dev/null)
     log_info "Скачано: $((file_size/1024/1024)) MB"
+}
 
+# Скачивание dev образа
+replace_dev() {
+    local build_zip=$1
+    local repo=$2
+    local home_dir="$HOME"
+
+    # Создаем имя файла из названия репозитория
+    local repo_name=$(basename "$repo")
+    local zip_file="$home_dir/${repo_name}_latest.zip"
+
+    log_info "Перемещаем в: $zip_file"
+
+    # Перемещаем архив
+    mv "$build_zip" "$zip_file"
+
+    # Проверяем что файл переместился
+    if [ ! -f "$zip_file" ]; then
+        log_error "Файл не был перемещен"
+        exit 1
+    fi
+
+    local file_size=$(stat -f%z "$zip_file" 2>/dev/null || stat -c%s "$zip_file" 2>/dev/null)
+    log_info "Перемещено: $((file_size/1024/1024)) MB"
+}
+
+# Распаковка
+extract() {
+    local repo=$1
+    local home_dir="$HOME"
+    local repo_name=$(basename "$repo")
+    local zip_file="$home_dir/${repo_name}_latest.zip"
+    local extract_dir="$home_dir/${repo_name}"
     # Создаем директорию для распаковки
     if [ -d "$extract_dir" ]; then
-        log_warn "Директория $extract_dir уже существует, переименовываем старую версию"
-        mv "$extract_dir" "${extract_dir}_backup_$(date +%Y%m%d_%H%M%S)"
+        log_warn "Директория $extract_dir уже существует, удаляем старую версию"
+        rm -rf "$extract_dir"
     fi
 
     mkdir -p "$extract_dir"
@@ -155,6 +187,7 @@ download_and_extract() {
 # Основная функция
 main() {
     local repo=maintainer64/bank-nocodb-sync
+    local dev=$1
 
     log_info "Начинаем загрузку последнего релиза для: $repo"
 
@@ -164,8 +197,14 @@ main() {
     # Получаем URL для скачивания
     get_latest_release "$repo"
 
-    # Скачиваем и распаковываем
-    download_and_extract "$download_url" "$repo"
+    # Скачиваем
+    if [[ "$dev" == "dev" ]]; then
+      replace_dev "build.zip" "$repo"
+    else
+      download "$download_url" "$repo"
+    fi
+    # Распаковываем
+    extract "$repo"
 }
 
 # Запуск скрипта

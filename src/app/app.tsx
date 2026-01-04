@@ -5,6 +5,7 @@ import {SettingsPage} from "@/pages/settings";
 import {Space} from "@/components/ui/card";
 import {ServicesPage} from "@/pages/services/services-list-page";
 import {Toaster} from "solid-toast";
+import {PredictPage} from "@/pages/predicts/predicts-transaction";
 
 export const App: Component = () => {
     return (
@@ -24,6 +25,9 @@ export const App: Component = () => {
                     </Match>
                     <Match when={currentRoute() === "settings"}>
                         <SettingsPage/>
+                    </Match>
+                    <Match when={currentRoute() === "predicts"}>
+                        <PredictPage/>
                     </Match>
                 </Switch>
                 <Toaster

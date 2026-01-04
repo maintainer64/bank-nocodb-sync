@@ -17,7 +17,9 @@ const services = [
 
 export const ServicesPage = () => {
     const activeTab: ActiveTab = useActiveTabUrl();
-    const [serviceFound, setServiceFound] = createSignal<ProviderAny | undefined>(undefined);
+    const [serviceFound, setServiceFound] = createSignal<
+        ProviderAny | undefined
+    >(undefined);
 
     // Эффект для поиска сервиса
     createEffect(() => {

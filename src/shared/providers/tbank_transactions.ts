@@ -95,18 +95,24 @@ export const tBankTransactions: ProviderAny = {
         const payload = (resp?.payload || []).slice(0, maxLimit)
         payload?.map((operation: any) => {
             if (operation?.status !== "OK") return;
-            const category = operation?.spendingCategory?.name || ""
-            const subcategory = operation?.subcategory || "";
-            const fullCategory = category && subcategory ? category + "_" + subcategory : category + subcategory;
+            const descriptionArray = [
+                operation?.payment?.fieldsValues?.message,
+                operation?.spendingCategory?.name,
+                operation?.subcategory,
+                operation?.cardNumber,
+                operation?.card
+            ];
+            const filteredArray = descriptionArray.filter(item => typeof item === 'string' && item.length > 0);
+            const description = filteredArray.join(';');
             rows.push({
                 name: operation?.description || operation?.brand?.name || operation?.spendingCategory?.name,
+                description: description,
+                type: operation?.type === "Credit" ? "Доход" : "Расход",
                 date: (new Date(operation?.operationTime?.milliseconds)).toISOString(),
-                card_number: operation?.cardNumber || operation?.card || operation?.account,
-                amount: (operation?.type === "Credit" ? 1 : -1) * (operation?.accountAmount?.value || 0),
-                category: fullCategory,
-                skip: false,
-                accounts: `${PREFIX_BANK}${operation?.account || operation?.payment?.bankAccountId}`,
+                amount: operation?.accountAmount?.value || 0,
                 uniform_id: operation?.id || operation?.operationId?.value,
+                is_deleted: false,
+                account_uniform_id: `${PREFIX_BANK}${operation?.account || operation?.payment?.bankAccountId}`,
             })
         })
         return rows;

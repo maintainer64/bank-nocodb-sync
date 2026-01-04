@@ -4,6 +4,7 @@ import {NocodbSettings} from "@/pages/settings/ui/nocodb-settings";
 import {GeneralSettings} from "@/pages/settings/ui/general-settings";
 import {ImportExportSettings} from "@/pages/settings/ui/import-export-settings";
 import {VersionApp} from "@/pages/settings/ui/version-app";
+import {Additional} from "@/pages/settings/ui/additional";
 
 export const SettingsPage: Component = () => {
     return (
@@ -11,6 +12,7 @@ export const SettingsPage: Component = () => {
             <GeneralSettings/>
             <NocodbSettings/>
             <ImportExportSettings/>
+            <Additional/>
             <VersionApp/>
         </Space>
     );

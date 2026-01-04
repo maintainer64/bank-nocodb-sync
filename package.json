@@ -1,12 +1,13 @@
 {
   "name": "bank-nocodb-sync",
-  "version": "0.1.1",
+  "repository": "maintainer64/bank-nocodb-sync",
+  "version": "0.2.0",
   "description": "Chrome Extension for syncing bank transactions with NocoDB",
   "main": "src/index.tsx",
   "scripts": {
     "start": "vite",
-    "dev": "vite",
     "build": "vite build && vite build --config vite-service-worker.config.ts && cp -R build bank-nocodb-sync && zip -r -m build.zip bank-nocodb-sync",
+    "dev": "yarn build && ./install.sh dev",
     "serve": "vite preview"
   },
   "private": false,

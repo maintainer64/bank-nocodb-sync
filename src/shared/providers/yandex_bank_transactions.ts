@@ -138,23 +138,29 @@ export const yandexBankTransactions: ProviderAny = {
         for (const operation of operations) {
             if (operation?.statusCode !== "CLEAR") continue;
             const plain = operation?.title?.plain;
-            const description = operation?.description;
             const compound = operation?.title?.compound?.firstPart && operation?.title?.compound?.secondPart ? `${operation?.title?.compound?.firstPart}->${operation?.title?.compound?.secondPart}` : '';
             const accounts = await generateHashAccount(
                 yandexLogin,
                 operation?.rightSubTitle || ''
             );
+            const descriptionArray = [
+                operation?.comment,
+                operation?.description,
+                compound,
+                plain,
+                operation?.rightSubTitle,
+            ];
+            const filteredArray = descriptionArray.filter(item => typeof item === 'string' && item.length > 0);
+            const description = filteredArray.join(';');
             rows.push({
-                name: compound || plain || description || "",
+                name: compound || plain || operation?.description || "",
+                description: description,
+                type: operation?.direction === "CREDIT" ? "Доход" : "Расход",
                 date: (new Date(operation?.date)).toISOString(),
-                card_number: operation?.rightSubTitle,
-                amount: (operation?.direction === "CREDIT" ? 1 : -1) * (parseFloat(operation?.amount?.money?.amount || "0.00")),
-                category: description || plain || "",
-                skip: false,
-                comment: operation?.comment || "",
-                accounts:
-                    `${PREFIX_BANK}${accounts}`,
+                amount: parseFloat(operation?.amount?.money?.amount || "0.00"),
                 uniform_id: operation?.id,
+                is_deleted: false,
+                account_uniform_id: `${PREFIX_BANK}${accounts}`,
             })
         }
         return rows;
