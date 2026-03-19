@@ -3,6 +3,18 @@ import {useNocoDbClient} from "@/shared/hooks/useNocoDbClient";
 import {TransactionWithId} from "@/shared/providers/base";
 import {smartPredict} from "@/pages/predicts/smartPredictor";
 import {TransactionTableName} from "@/shared/providers/nocodb_client";
+import {setCurrentWidth} from "@/shared/width";
+
+
+const dateTimeFormat = new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false // 24-часовой формат
+});
 
 export const PredictPage: Component = () => {
     const nocoDbClient = useNocoDbClient();
@@ -52,10 +64,7 @@ export const PredictPage: Component = () => {
         setCategory(t?.category || "");
         setSubCategory(t?.subcategory || "");
         setEpic(t?.epic || "");
-        const root = window.document.getElementById('root');
-        if (root) {
-            root.style.width = "600px";
-        }
+        setCurrentWidth("600px");
     });
 
     const applyPrediction = () => {
@@ -118,7 +127,7 @@ export const PredictPage: Component = () => {
                                     {tx()?.amount?.toLocaleString()} ₽
                                 </span>
                             </div>
-                            <div class="font-medium">{tx()?.description}</div>
+                            <div class="font-medium">{tx()?.name}</div>
                             {tx()?.uniform_id && <div class="text-xs text-gray-400 mt-1">ID: {tx()?.uniform_id}</div>}
                         </div>
 
@@ -196,7 +205,7 @@ export const PredictPage: Component = () => {
                     {/* Правая часть - контекст */}
                     <div class="bg-white border rounded overflow-hidden">
                         <div class="overflow-x-auto"> {/* Добавляем горизонтальную прокрутку */}
-                            <table class="w-full text-xs min-w-[600px]"> {/* Устанавливаем минимальную ширину */}
+                            <table class="w-full text-xs">
                                 <thead class="bg-gray-50 text-gray-500">
                                 <tr>
                                     <th class="text-left p-2 font-medium sticky left-0 bg-gray-50 z-10">Сумма</th>
@@ -218,15 +227,18 @@ export const PredictPage: Component = () => {
                                                 <td class="p-2 whitespace-nowrap text-gray-500 sticky left-0 bg-white z-10">{t.type === 'Доход' ? '+' : '-'}{
                                                     t.amount?.toLocaleString()
                                                 }</td>
-                                                <td class="p-2 truncate min-w-[200px] max-w-[300px]"
+                                                <td class="p-2"
                                                     title={t.description}>
                                                     {isCurrent && <span class="text-yellow-600 mr-1">▶</span>}
-                                                    {t.description}
+                                                    {t.name}<br/>{t.description}
                                                 </td>
-                                                <td class="p-2 text-right whitespace-nowrap min-w-[100px]">
-                                                    {t.date}
+                                                <td class="p-2 text-right whitespace-nowrap">
+                                                    {dateTimeFormat.format(new Date(t.date)).replace(
+                                                        ',',
+                                                        ''
+                                                    )}
                                                 </td>
-                                                <td class="p-2 text-gray-500 truncate min-w-[120px] max-w-[150px]">
+                                                <td class="p-2 text-gray-500">
                                                     {t.category || <span class="text-gray-300">—</span>}
                                                 </td>
                                             </tr>

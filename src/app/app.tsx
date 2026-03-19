@@ -1,15 +1,16 @@
 import {Component, Match, Switch} from "solid-js";
-import {Navigation} from "../components/navigation";
-import {currentRoute} from "../shared/routing";
+import {Navigation} from "@/components/navigation";
+import {currentRoute} from "@/shared/routing";
 import {SettingsPage} from "@/pages/settings";
 import {Space} from "@/components/ui/card";
 import {ServicesPage} from "@/pages/services/services-list-page";
 import {Toaster} from "solid-toast";
 import {PredictPage} from "@/pages/predicts/predicts-transaction";
+import {currentWidth} from "@/shared/width";
 
 export const App: Component = () => {
     return (
-        <div class="min-h-screen">
+        <div class="min-h-screen" style={{width: currentWidth()}}>
             <Navigation/>
             <main class="container mx-auto px-0 py-0">
                 <Switch fallback={
