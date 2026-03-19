@@ -1,7 +1,7 @@
 {
   "name": "bank-nocodb-sync",
   "repository": "maintainer64/bank-nocodb-sync",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Chrome Extension for syncing bank transactions with NocoDB",
   "main": "src/index.tsx",
   "scripts": {
