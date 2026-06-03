@@ -1,1 +1,1 @@
-export type TRoute = "services" | "settings" | "predicts";
+export type TRoute = "services" | "settings";

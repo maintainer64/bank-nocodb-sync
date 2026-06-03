@@ -5,9 +5,7 @@ import {downloadFile} from "@/shared/utils";
 import {AsyncButton} from "@/components/ui/button";
 
 export const ImportExportSettings = () => {
-    const [url, setUrl] = useUniversalStorage('nocodb-url', '');
-    const [token, setToken] = useUniversalStorage('nocodb-token', '');
-    const [baseId, setBaseId] = useUniversalStorage('nocodb-base-id', '');
+    const [url, setUrl] = useUniversalStorage('sure-url', '');
     const [max, setMax] = useUniversalStorage('general-max-transactions', '1000');
     const importSettings = (event: Event) => {
         const input = event.target as HTMLInputElement;
@@ -21,14 +19,8 @@ export const ImportExportSettings = () => {
                 const settings = JSON.parse(e.target?.result as string);
 
                 // Обновляем все настройки
-                if (settings['nocodb-url'] !== undefined) {
-                    setUrl(settings['nocodb-url']);
-                }
-                if (settings['nocodb-token'] !== undefined) {
-                    setToken(settings['nocodb-token']);
-                }
-                if (settings['nocodb-base-id'] !== undefined) {
-                    setBaseId(settings['nocodb-base-id']);
+                if (settings['sure-url'] !== undefined) {
+                    setUrl(settings['sure-url']);
                 }
                 if (settings['general-max-transactions'] !== undefined) {
                     setMax(settings['general-max-transactions']);
@@ -53,12 +45,9 @@ export const ImportExportSettings = () => {
                         loadingLabel="Сохранение..."
                         onClick={async () => {
                             const settings = {
-                                'nocodb-url': url(),
-                                'nocodb-token': token(),
-                                'nocodb-base-id': baseId(),
+                                'sure-url': url(),
                                 'general-max-transactions': max()
                             }
-                            console.log(settings);
                             downloadFile(
                                 "settings.json",
                                 JSON.stringify(settings, null, 2)

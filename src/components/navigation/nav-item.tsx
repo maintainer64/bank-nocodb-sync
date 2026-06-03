@@ -1,5 +1,5 @@
 import {TRoute} from "@/shared/types";
-import {currentRoute, setCurrentRoute} from "@/shared/routing";
+import {currentRoute, navigateTo} from "@/shared/routing";
 import {JSX} from "solid-js";
 
 type TProps = {
@@ -16,7 +16,7 @@ export const NavItem = ({route, text, icon }: TProps) => {
     <li class="me-2">
       <span
         class={currentRoute() === route ? selectedStyle : defaultStyle}
-        onClick={() => setCurrentRoute(route)}
+        onClick={() => navigateTo(route)}
       >
         <span class="me-1">{icon}</span> {text}
       </span>

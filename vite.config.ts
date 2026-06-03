@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import progress from "vite-plugin-progress";
 import solidPlugin from "vite-plugin-solid";
 import { fileURLToPath } from "node:url";
-// @ts-ignore
+// @ts-expect-error pkg import
 import pkg from './package.json';
 
 export default defineConfig({

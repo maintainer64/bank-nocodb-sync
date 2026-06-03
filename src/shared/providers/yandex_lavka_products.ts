@@ -26,6 +26,7 @@ async function getOrdersByParams(count: number, lastOrderId?: string) {
 async function getOrdersByMaxLimit(maxLimit: number) {
     let lastOrderId = undefined;
     let rows: any[] = [];
+    // eslint-disable-next-line no-constant-condition
     while (true) {
         const data = await getOrdersByParams(20, lastOrderId);
         rows = rows.concat(data?.data?.orders || []);
@@ -58,7 +59,7 @@ export const yandexLavkaProducts: ProviderAny = {
         return "https://lavka.yandex.ru/history"
     },
     getProducts: async (params: ProviderParams): Promise<Product[]> => {
-        let rows: Product[] = [];
+        const rows: Product[] = [];
         const maxLimit = getMaxTransactions(params.maxTransactions);
         const orders = await getOrdersByMaxLimit(maxLimit);
         console.log(orders)

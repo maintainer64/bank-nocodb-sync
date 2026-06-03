@@ -1,7 +1,7 @@
 import {Collapsible} from "@/components/ui/collapsible";
-import {FaSolidPaperclip} from "solid-icons/fa";
+import {FaSolidPaperclip, FaSolidArrowUpRightFromSquare} from "solid-icons/fa";
 import {AsyncButton} from "@/components/ui/button";
-import {setCurrentRoute} from "@/shared/routing";
+import {navigateTo} from "@/shared/routing";
 
 export const Additional = () => {
     return (
@@ -12,7 +12,16 @@ export const Additional = () => {
                         icon={<FaSolidPaperclip/>}
                         label="Разметка транзакций"
                         onClick={async () => {
-                            setCurrentRoute("predicts")
+                            navigateTo("predicts")
+                        }}
+                    />
+                </div>
+                <div>
+                    <AsyncButton
+                        icon={<FaSolidArrowUpRightFromSquare/>}
+                        label="Открыть в отдельной вкладке"
+                        onClick={async () => {
+                            window.open(window.location.href, '_blank');
                         }}
                     />
                 </div>
