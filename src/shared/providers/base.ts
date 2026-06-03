@@ -1,33 +1,54 @@
 export interface Transaction {
-    name: string;
-    description?: string;
-    type: "Доход" | "Расход";
-    date: string;
-    amount: number;
-    uniform_id: string;
-    is_deleted: boolean;
-    account_uniform_id: string;
+    external_account_id: string; // Account ID (required)
+    date: string;  // Transaction date + time
+    amount: number; // Transaction amount
+    name: string;  // Transaction name/description
+    description?: string;  // Alternative to name field
+    notes?: string;  // Additional notes
+    currency: string;  // Currency code (defaults to family currency)
+    nature: "income" | "expense" | "inflow" | "outflow";  // Transaction nature (determines sign)
+    external_id: string;  // Optional external idempotency key scoped to account and source
+    source: string;  // Optional source namespace for external_id. Requires external_id and defaults to api when external_id is provided
 }
 
-export interface TransactionWithId extends Transaction {
-    id: number;
-    category?: string;
-    subcategory?: string;
-    epic?: string;
-}
+export type AccountTypes =
+    'Depository'
+    | 'Investment'
+    | 'Crypto'
+    | 'Property'
+    | 'Vehicle'
+    | 'CreditCard'
+    | 'Loan'
+    | 'OtherAsset'
+    | 'OtherLiability';
 
-export interface Category {
-    id: number;
-    name?: string;
+export type AccountSubtype =
+// Depository
+    "checking" |
+    "savings" |
+    "hsa" |
+    "cd" |
+    "money_market" |
+    ""
+
+export interface AccountTypeWithSubtype {
+    subtype: AccountSubtype;
+    accountable_type: AccountTypes;
 }
 
 export interface Account {
-    name: string;
-    currency: string;
-    type: string;
-    start: string;
-    end?: string;
-    uniform_id: string;
+    name: string; // Название счёта
+    currency: string; // Валюта
+    opening_balance_date: string; // Дата открытия баланса
+    institution_name: string; // Название банка
+    institution_domain: string; // ID внешний для связки
+    subtype: AccountSubtype; // Подтип
+    expiration_date?: string; // Дата окончания срока
+    available_credit?: string;           // Для кредиток доступный кредитный лимит (число как строка)
+    minimum_payment?: string;            // Для кредиток минимальный платёж
+    apr?: string;                        // Для кредиток годовая процентная ставка
+    accountable_type?: AccountTypes; // Тип счёта
+    notes?: string; // Дата создания или другая удобная информация для пользователя
 }
 
 export interface Product {
@@ -67,3 +88,9 @@ export interface ProviderAny {
 
     getProducts?(params: ProviderParams): Promise<Product[]>;
 }
+
+export const getFullNotice = (...args: any): string => {
+    const filteredArray = args.filter(item => typeof item === 'string' && item.length > 0);
+    const uniqueArray = [...new Set(filteredArray)];
+    return uniqueArray.join(';');
+};

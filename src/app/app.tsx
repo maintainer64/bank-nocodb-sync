@@ -1,14 +1,23 @@
-import {Component, Match, Switch} from "solid-js";
+import {Component, Match, Switch, onMount} from "solid-js";
 import {Navigation} from "@/components/navigation";
 import {currentRoute} from "@/shared/routing";
 import {SettingsPage} from "@/pages/settings";
 import {Space} from "@/components/ui/card";
 import {ServicesPage} from "@/pages/services/services-list-page";
 import {Toaster} from "solid-toast";
-import {PredictPage} from "@/pages/predicts/predicts-transaction";
-import {currentWidth} from "@/shared/width";
+import {currentWidth, setCurrentWidth} from "@/shared/width";
 
 export const App: Component = () => {
+    const isStandalone = window.outerWidth > 700;
+
+    onMount(() => {
+        if (isStandalone) {
+            setCurrentWidth("100%");
+        } else {
+            setCurrentWidth("600px");
+        }
+    });
+
     return (
         <div class="min-h-screen" style={{width: currentWidth()}}>
             <Navigation/>
@@ -26,9 +35,6 @@ export const App: Component = () => {
                     </Match>
                     <Match when={currentRoute() === "settings"}>
                         <SettingsPage/>
-                    </Match>
-                    <Match when={currentRoute() === "predicts"}>
-                        <PredictPage/>
                     </Match>
                 </Switch>
                 <Toaster

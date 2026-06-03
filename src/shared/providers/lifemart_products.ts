@@ -1,4 +1,4 @@
-import {Product, ProviderAny, ProviderParams, Transaction} from "./base";
+import {Product, ProviderAny, ProviderParams} from "./base";
 import {getCookieByName, getMaxTransactions} from "@/shared/utils";
 
 
@@ -23,6 +23,7 @@ async function getOrdersByParams(limit: number, offset: number) {
 async function getOrdersByMaxLimit(maxLimit: number) {
     let rows: any[] = [];
     let page = 0;
+    // eslint-disable-next-line no-constant-condition
     while (true) {
         const data = await getOrdersByParams(20, page * 20)
         const currentRows = data?.orders || [];
@@ -44,7 +45,7 @@ export const lifeMartProducts: ProviderAny = {
         return "https://lifemart.ru"
     },
     getProducts: async (params: ProviderParams): Promise<Product[]> => {
-        let rows: Product[] = [];
+        const rows: Product[] = [];
         const maxLimit = getMaxTransactions(params.maxTransactions);
         const orders = await getOrdersByMaxLimit(maxLimit);
         for (const order of orders) {

@@ -1,19 +1,29 @@
 {
   "name": "bank-nocodb-sync",
   "repository": "maintainer64/bank-nocodb-sync",
-  "version": "0.2.1",
-  "description": "Chrome Extension for syncing bank transactions with NocoDB",
+  "version": "0.3.0",
+  "description": "Chrome Extension for syncing bank transactions",
   "main": "src/index.tsx",
   "scripts": {
     "start": "vite",
     "build": "vite build && vite build --config vite-service-worker.config.ts && cp -R build bank-nocodb-sync && zip -r -m build.zip bank-nocodb-sync",
     "dev": "yarn build && ./install.sh dev",
-    "serve": "vite preview"
+    "generate": "npx swagger-typescript-api generate -p https://raw.githubusercontent.com/we-promise/sure/refs/heads/main/docs/api/openapi.yaml -o src/shared/providers/sure/sureClient --modular",
+    "serve": "vite preview",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
+    "prepare": "husky"
   },
   "private": false,
   "devDependencies": {
     "@types/chrome": "^0.1.24",
+    "@typescript-eslint/eslint-plugin": "^7",
+    "@typescript-eslint/parser": "^7",
     "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
+    "eslint-plugin-solid": "^0.14",
+    "husky": "^9",
+    "lint-staged": "^15",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.15",
     "tailwindcss-vite-plugin": "^0.0.7",
@@ -25,6 +35,7 @@
   "dependencies": {
     "@solid-primitives/storage": "^4.3.1",
     "crypto-js": "^4.2.0",
+    "isdayoff": "^1.0.1",
     "solid-icons": "^1.1.0",
     "solid-js": "^1.7.6",
     "solid-toast": "^0.5.0"

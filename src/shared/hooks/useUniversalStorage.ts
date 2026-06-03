@@ -54,9 +54,10 @@ export function useUniversalStorage<T>(
 
     const updateValue = (newValue: T | ((prev: T) => T)) => {
         if (typeof newValue === 'function') {
+            // eslint-disable-next-line @typescript-eslint/ban-types
             setValue(prev => (newValue as Function)(prev));
         } else {
-            // @ts-ignore
+            // @ts-expect-error new value
             setValue(newValue);
         }
     };

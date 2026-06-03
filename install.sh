@@ -194,13 +194,12 @@ main() {
     # Проверяем зависимости
     check_dependencies
 
-    # Получаем URL для скачивания
-    get_latest_release "$repo"
-
     # Скачиваем
     if [[ "$dev" == "dev" ]]; then
       replace_dev "build.zip" "$repo"
     else
+      # Получаем URL для скачивания
+      get_latest_release "$repo"
       download "$download_url" "$repo"
     fi
     # Распаковываем
