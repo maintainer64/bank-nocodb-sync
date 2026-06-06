@@ -1,4 +1,12 @@
-import {Account, AccountTypeWithSubtype, getFullNotice, ProviderAny, ProviderParams, Transaction} from "./base";
+import {
+    Account,
+    AccountTypeWithSubtype,
+    getCurrencyCodeMap,
+    getFullNotice,
+    ProviderAny,
+    ProviderParams,
+    Transaction
+} from "./base";
 import {getCookieByName, getMaxTransactions} from "@/shared/utils";
 import {swFetch} from "@/shared/sw-fetch";
 
@@ -134,7 +142,7 @@ export const tBankTransactions: ProviderAny = {
                     operation?.cardNumber,
                     operation?.card
                 ),
-                currency: operation?.accountAmount?.currency?.name || "RUB",
+                currency: getCurrencyCodeMap(operation?.accountAmount?.currency?.name),
                 nature: operation?.type === "Credit" ? "income" : "expense",
                 amount: operation?.accountAmount?.value || 0,
                 external_id: operation?.id || operation?.operationId?.value,

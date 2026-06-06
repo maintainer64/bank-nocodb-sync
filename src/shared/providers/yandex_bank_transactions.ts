@@ -1,4 +1,4 @@
-import {Account, getFullNotice, ProviderAny, ProviderParams, Transaction} from "./base";
+import {Account, getCurrencyCodeMap, getFullNotice, ProviderAny, ProviderParams, Transaction} from "./base";
 import {getCookieByName, getMaxTransactions} from "@/shared/utils";
 import {swFetch} from "@/shared/sw-fetch";
 
@@ -239,7 +239,7 @@ export const yandexBankTransactions: ProviderAny = {
                     plain,
                     operation?.rightSubTitle,
                 ),
-                currency: operation?.accountAmount?.currency?.name || "RUB",
+                currency: getCurrencyCodeMap(operation?.accountAmount?.currency?.name),
                 nature: operation?.direction === "CREDIT" ? "income" : "expense",
                 amount: parseFloat(operation?.amount?.money?.amount || "0.00"),
                 external_id: operation?.id,

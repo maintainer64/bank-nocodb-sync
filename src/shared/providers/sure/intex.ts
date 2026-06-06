@@ -6,7 +6,7 @@ import {mapAccountToParams} from "@/shared/providers/sure/map";
 
 const MAX_PAGES = 1000;
 
-export class SureService implements ProviderSync, ProviderFormatCSV{
+export class SureService implements ProviderSync, ProviderFormatCSV {
     private readonly internalApi: SureInternalApi;
     private externalApi: SureExternalApi | undefined;
 
@@ -16,35 +16,30 @@ export class SureService implements ProviderSync, ProviderFormatCSV{
     }
 
 
-    getName(): string{
+    getName(): string {
         return "Sure"
     }
 
     async accountsToCSV(accounts: Account[]): Promise<any[]> {
         return accounts.map(a => ({
-            name: a.name,
-            currency: a.currency,
-            opening_balance_date: a.opening_balance_date,
-            institution_name: a.institution_name,
-            institution_domain: a.institution_domain,
-            subtype: a.subtype,
-            accountable_type: a.accountable_type || '',
-            notes: a.notes || '',
+            "Account type*": a.accountable_type || '',
+            "Name*": a.name + ", " + a.institution_domain,
+            "Balance*": 0,
+            "Currency": a.currency || "",
+            "Balance Date": a.opening_balance_date || "",
         }));
     }
 
     async transactionsToCSV(transactions: Transaction[]): Promise<any[]> {
         return transactions.map(t => ({
-            date: t.date,
-            amount: t.amount,
-            name: t.name,
-            description: t.description || '',
-            notes: t.notes || '',
-            currency: t.currency,
-            nature: t.nature,
-            external_id: t.external_id,
-            source: t.source,
-            external_account_id: t.external_account_id,
+            "date*": t.date,
+            "amount*": t.nature === "income" || t.nature === "inflow" ? t.amount : -t.amount,
+            "name": t.name || t.description,
+            "currency": t.currency,
+            "category": '',
+            "tags": '',
+            "account": t.external_account_id,
+            "notes": t.notes,
         }));
     }
 

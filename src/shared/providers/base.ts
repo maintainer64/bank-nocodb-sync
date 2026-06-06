@@ -95,6 +95,11 @@ export const getFullNotice = (...args: any): string => {
     return uniqueArray.join(';');
 };
 
+export const getCurrencyCodeMap = (currency?: string): string => {
+    if (currency === "RUR") return "RUB"
+    return currency || "RUB";
+};
+
 export interface ProviderSync {
     getName(): string;
 

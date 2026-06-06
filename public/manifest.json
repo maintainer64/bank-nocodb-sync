@@ -1,6 +1,6 @@
 {
-  "name": "Bank loader to Sure",
-  "description": "Get csv and API to providers data",
+  "name": "Bank Sync",
+  "description": "Универсальный экспорт банковских данных",
   "version": "0.4",
   "manifest_version": 3,
   "icons": {

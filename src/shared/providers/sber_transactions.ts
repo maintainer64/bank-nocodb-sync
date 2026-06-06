@@ -1,4 +1,4 @@
-import {Account, getFullNotice, ProviderAny, ProviderParams, Transaction} from "./base";
+import {Account, getCurrencyCodeMap, getFullNotice, ProviderAny, ProviderParams, Transaction} from "./base";
 import {swFetch} from "@/shared/sw-fetch";
 import {getMaxTransactions} from "@/shared/utils";
 
@@ -10,8 +10,46 @@ const SETTINGS = {
     baseUrl: "https://web-node4.online.sberbank.ru",
 };
 
-// Получение данных о счетах
+let cachedBaseUrl: string | null = null;
+
+// Динамическое определение базового URL Сбербанка
+async function getBaseUrl(): Promise<string> {
+    if (cachedBaseUrl) return cachedBaseUrl;
+
+    try {
+        const mainPageResp = await swFetch('https://online.sberbank.ru/app/main');
+        const html = await mainPageResp.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        const hosts = new Set<string>();
+        doc.querySelectorAll('script[src]').forEach(script => {
+            const src = script.getAttribute('src');
+            if (src) {
+                const match = src.match(/https:\/\/([^\\/]+\.online\.sberbank\.ru)/);
+                if (match) hosts.add(match[1]);
+            }
+        });
+
+        for (const host of hosts) {
+            try {
+                const resp = await swFetch(`https://${host}/main`);
+                const text = await resp.text();
+                const found = text.match(/"ufs\.block\.root\.url"\s*:\s*"([^"]+)"/);
+                if (found) {
+                    cachedBaseUrl = found[1].replace(/\/+$/, '');
+                    return cachedBaseUrl;
+                }
+            } catch { continue; }
+        }
+    } catch { /* fallback to default */ }
+
+    cachedBaseUrl = SETTINGS.baseUrl;
+    return cachedBaseUrl;
+}
+
 async function getAccountsMainScreen() {
+    const baseUrl = await getBaseUrl();
     const requestOptions = {
         method: "POST",
         credentials: 'include',
@@ -26,14 +64,15 @@ async function getAccountsMainScreen() {
         }
     } as RequestInit;
     const response = await swFetch(
-        `${SETTINGS.baseUrl}/main-screen/rest/v2/m1/web/section/meta`,
+        `${baseUrl}/main-screen/rest/v2/m1/web/section/meta`,
         requestOptions,
     );
     return await response.json();
 }
 
 // Получение данных в списке счетов
-async function getTransactions(limit: number = 100, offset: number = 0) {
+async function getSberTransactions(limit: number = 100, offset: number = 0) {
+    const baseUrl = await getBaseUrl();
     const requestOptions = {
         method: "POST",
         credentials: 'include',
@@ -51,7 +90,7 @@ async function getTransactions(limit: number = 100, offset: number = 0) {
         }
     } as RequestInit;
     const response = await swFetch(
-        `${SETTINGS.baseUrl}/uoh-bh/v1/operations/list`,
+        `${baseUrl}/uoh-bh/v1/operations/list`,
         requestOptions,
     );
     return await response.json();
@@ -75,7 +114,7 @@ export const sberTransactions: ProviderAny = {
         let operations = [];
         // eslint-disable-next-line no-constant-condition
         while (true) {
-            const page = await getTransactions(100, operations.length);
+            const page = await getSberTransactions(100, operations.length);
             const operationsPage = page?.body?.operations || [];
             operations.push(...operationsPage);
             if (operations.length >= maxLimit || operationsPage.length <= 0) {
@@ -101,7 +140,7 @@ export const sberTransactions: ProviderAny = {
                     operation?.form,
                     operation?.imageUrl,
                 ),
-                currency: operation?.operationAmount?.currencyCode || "RUB",
+                currency: getCurrencyCodeMap(operation?.operationAmount?.currencyCode),
                 external_id: operation?.externalId,
                 source: SETTINGS.prefix,
                 external_account_id: '',
@@ -159,7 +198,7 @@ export const sberTransactions: ProviderAny = {
                 rows.push({
                     name: dep.name || 'Вклад',
                     currency: dep.balance?.currency?.code || 'RUB',
-                    opening_balance_date: dep.openDate || new Date().toISOString().split('T')[0],
+                    opening_balance_date: (dep.openDate ? dep.openDate.split('.').reverse().join('-') : new Date().toLocaleDateString('en-CA')),
                     institution_name: SETTINGS.name,
                     institution_domain: `${SETTINGS.prefix}account:${dep.id}`,
                     subtype: 'savings', // при наличии closeDate можно менять на 'cd'

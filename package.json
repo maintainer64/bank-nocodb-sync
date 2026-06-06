@@ -2,7 +2,7 @@
   "name": "bank-nocodb-sync",
   "repository": "maintainer64/bank-nocodb-sync",
   "version": "0.4.0",
-  "description": "Chrome Extension for syncing bank transactions",
+  "description": "Chrome Extension for universal bank data export",
   "main": "src/index.tsx",
   "scripts": {
     "start": "vite",
