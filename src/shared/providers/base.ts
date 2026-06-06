@@ -94,3 +94,17 @@ export const getFullNotice = (...args: any): string => {
     const uniqueArray = [...new Set(filteredArray)];
     return uniqueArray.join(';');
 };
+
+export interface ProviderSync {
+    getName(): string;
+
+    createAccountsIfNotExists(accounts: Account[]): Promise<void>;
+
+    createTransactionsIfNotExists(transactions: Transaction[]): Promise<void>;
+}
+
+export interface ProviderFormatCSV {
+    accountsToCSV(accounts: Account[]): Promise<any[]>;
+
+    transactionsToCSV(transactions: Transaction[]): Promise<any[]>;
+}

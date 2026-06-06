@@ -1,5 +1,6 @@
 import {Product, ProviderAny, ProviderParams} from "./base";
 import {getCookieByName, getMaxTransactions} from "@/shared/utils";
+import {swFetch} from "@/shared/sw-fetch";
 
 
 const PREFIX = "life_mart_";
@@ -13,9 +14,9 @@ async function getOrdersByParams(limit: number, offset: number) {
         },
         redirect: "follow"
     };
-    const response = await fetch(
+    const response = await swFetch(
         `https://api.lifemart.ru/api/orders/list?detailed=true&max_records=${limit}&offset=${offset}`,
-        requestOptions as RequestInit,
+        requestOptions,
     );
     return await response.json();
 }

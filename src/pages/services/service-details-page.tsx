@@ -1,11 +1,11 @@
 import {ProviderAny, ProviderParams} from "@/shared/providers/base";
-import {Component, Show} from "solid-js";
+import {Component, For, Show} from "solid-js";
 import {FaSolidDownload, FaSolidRotate} from "solid-icons/fa";
 import {convertJsonToCSVString, downloadFile} from "@/shared/utils";
 import {useActiveTabUrl} from "@/shared/hooks/useActiveTabUrl";
 import {AsyncButton} from "@/components/ui/button";
 import {useUniversalStorage} from "@/shared/hooks/useUniversalStorage";
-import {useSureService} from "@/shared/hooks/useSureService";
+import {useServices} from "@/shared/hooks/useServices";
 
 interface ServiceDetailsPageProps {
     provider: ProviderAny;
@@ -14,8 +14,9 @@ interface ServiceDetailsPageProps {
 export const ServiceDetailsPage: Component<ServiceDetailsPageProps> = (props) => {
     const p = props.provider;
     const tab = useActiveTabUrl();
-    const api = useSureService();
+    const services = useServices();
     const [maxTransactions] = useUniversalStorage('general-max-transactions', '1000');
+
     return (
         <div class="flex flex-col gap-2 p-4">
             <h3 class="font-semibold text-lg mb-2 flex items-center gap-3 px-2">
@@ -31,24 +32,27 @@ export const ServiceDetailsPage: Component<ServiceDetailsPageProps> = (props) =>
             </h3>
 
             <Show when={p.getTransactions && p.getAccounts}>
-                <AsyncButton
-                    icon={<FaSolidRotate/>}
-                    label="Синхронизировать в Sure"
-                    loadingLabel="Синхронизация..."
-                    onClick={async () => {
-                        const params: ProviderParams = {
-                            url: tab.url() ?? "",
-                            maxTransactions: maxTransactions(),
-                        };
-                        const client = api();
-                        const accounts = await p.getAccounts?.() || [];
-                        await client.createAccountsIfNotExists(accounts);
-                        const transactions = await p.getTransactions?.(params) || [];
-                        await client.createTransactionsIfNotExists(transactions);
-                    }}
-                    successMessage="Счета и операции успешно синхронизированы с Sure"
-                    errorMessage="Ошибка при синхронизации с Sure"
-                />
+                <For each={services().services}>
+                    {(service) => (
+                        <AsyncButton
+                            icon={<FaSolidRotate/>}
+                            label={`Синхронизировать в ${service.getName()}`}
+                            loadingLabel="Синхронизация..."
+                            onClick={async () => {
+                                const params: ProviderParams = {
+                                    url: tab.url() ?? "",
+                                    maxTransactions: maxTransactions(),
+                                };
+                                const accounts = await p.getAccounts?.() || [];
+                                await service.createAccountsIfNotExists(accounts);
+                                const transactions = await p.getTransactions?.(params) || [];
+                                await service.createTransactionsIfNotExists(transactions);
+                            }}
+                            successMessage={`Счета и операции успешно синхронизированы с ${service.getName()}`}
+                            errorMessage={`Ошибка при синхронизации с ${service.getName()}`}
+                        />
+                    )}
+                </For>
             </Show>
 
             <Show when={p.getTransactions}>
@@ -62,7 +66,8 @@ export const ServiceDetailsPage: Component<ServiceDetailsPageProps> = (props) =>
                             maxTransactions: maxTransactions(),
                         };
                         const transactions = await p.getTransactions?.(params) || [];
-                        const csv = convertJsonToCSVString(transactions);
+                        const rows = await services().csv.transactionsToCSV(transactions);
+                        const csv = convertJsonToCSVString(rows);
                         downloadFile("data.csv", csv);
                     }}
                     successMessage="Операции успешно экспортированы в CSV"
@@ -76,8 +81,9 @@ export const ServiceDetailsPage: Component<ServiceDetailsPageProps> = (props) =>
                     label="Счета в CSV"
                     loadingLabel="Экспорт..."
                     onClick={async () => {
-                        const transactions = await p.getAccounts?.() || [];
-                        const csv = convertJsonToCSVString(transactions);
+                        const accounts = await p.getAccounts?.() || [];
+                        const rows = await services().csv.accountsToCSV(accounts);
+                        const csv = convertJsonToCSVString(rows);
                         downloadFile("data.csv", csv);
                     }}
                     successMessage="Счета успешно экспортированы в CSV"

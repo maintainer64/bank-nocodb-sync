@@ -3,7 +3,7 @@ import {TRoute} from "@/shared/types";
 
 const parseHashRoute = (): TRoute => {
     const hash = window.location.hash.replace('#/', '');
-    const routes: TRoute[] = ["services", "settings"];
+    const routes: TRoute[] = ["services", "settings", "onboarding"];
     return (routes.includes(hash as TRoute) ? hash : "services") as TRoute;
 };
 

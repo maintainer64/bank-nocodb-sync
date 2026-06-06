@@ -1,5 +1,6 @@
 import {Product, ProviderAny, ProviderParams} from "./base";
 import {getMaxTransactions} from "@/shared/utils";
+import {swFetch} from "@/shared/sw-fetch";
 
 
 const PREFIX = "lavka_yandex_";
@@ -16,7 +17,7 @@ async function getOrdersByParams(count: number, lastOrderId?: string) {
         queryParams.append('lastOrderId', lastOrderId)
     }
     const query = queryParams.toString();
-    const response = await fetch(
+    const response = await swFetch(
         `https://lavka.yandex.ru/api/v1/orders/v1/history/list?${query}`,
         requestOptions,
     );

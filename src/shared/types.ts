@@ -1,1 +1,1 @@
-export type TRoute = "services" | "settings";
+export type TRoute = "services" | "settings" | "onboarding";

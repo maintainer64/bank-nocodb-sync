@@ -1,5 +1,6 @@
 import {Account, getFullNotice, ProviderAny, ProviderParams, Transaction} from "./base";
 import {getCookieByName, getMaxTransactions} from "@/shared/utils";
+import {swFetch} from "@/shared/sw-fetch";
 
 
 const PREFIX_BANK = "yandex_";
@@ -26,11 +27,11 @@ async function getHomeProducts(operationId: string) {
         redirect: "follow",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload)
-    };
+    } as RequestInit;
     const searchParams = new URLSearchParams({operationId} as any);
-    const response = await fetch(
+    const response = await swFetch(
         `${BASE_URL}/graphql?${searchParams.toString()}`,
-        requestOptions as RequestInit
+        requestOptions,
     );
     return await response.json();
 }
@@ -44,11 +45,11 @@ async function getFirstOperationId(targetRegex: RegExp): Promise<string> {
             method: "GET",
             credentials: 'include',
             redirect: "follow"
-        };
+        } as RequestInit;
         // Получение HTML страницы /my
-        const response = await fetch(
+        const response = await swFetch(
             `${BASE_URL}/my`,
-            requestOptions as RequestInit,
+            requestOptions,
         )
         const htmlMy = await response.text();
         const parser = new DOMParser();
@@ -64,7 +65,7 @@ async function getFirstOperationId(targetRegex: RegExp): Promise<string> {
         const scriptHref = scriptHrefList.find((value) => (value ?? '').includes('cdn'));
         if (!scriptHref) return "";
         // Получение бандла js страницы
-        const jsBundleResponse = await fetch(scriptHref, requestOptions as RequestInit);
+        const jsBundleResponse = await swFetch(scriptHref, requestOptions);
         const jsBundle = await jsBundleResponse.text();
         const regex = /__webpack_require__\.u\s*=\s*(?:function\s*\(chunkId\)|\(chunkId\)\s*=>)\s*\{[\s\S]*?return\s*["']defaults-["']\s*\+\s*chunkId\s*\+\s*["']\.["']\s*\+\s*(\{[\s\S]*?\})/;
         // indexJsContent — это весь текст вашего главного бандла (main.js / runtime.js)
@@ -92,7 +93,7 @@ async function getFirstOperationId(targetRegex: RegExp): Promise<string> {
             try {
                 console.log(`Загрузка чанка ${chunkId}: ${url}`);
 
-                const response = await fetch(url, requestOptions as RequestInit);
+                const response = await swFetch(url, requestOptions);
                 if (!response.ok) {
                     console.warn(`Пропуск чанка ${chunkId}: статус ${response.status}`);
                     continue;
@@ -140,13 +141,13 @@ async function getBankOperations(operationId: string, cursor?: any) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify(payload)
-    };
+    } as RequestInit;
     const searchParams = new URLSearchParams({
         operationId: operationId,
     } as any);
-    const response = await fetch(
+    const response = await swFetch(
         `${BASE_URL}/graphql?${searchParams.toString()}`,
-        requestOptions as RequestInit
+        requestOptions,
     );
     return await response.json();
 }
@@ -171,13 +172,13 @@ async function getSavingsAccountsList(operationId: string) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify(payload)
-    };
+    } as RequestInit;
     const searchParams = new URLSearchParams({
         operationId: operationId,
     } as any);
-    const response = await fetch(
+    const response = await swFetch(
         `${BASE_URL}/graphql?${searchParams.toString()}`,
-        requestOptions as RequestInit
+        requestOptions,
     );
     return await response.json();
 }

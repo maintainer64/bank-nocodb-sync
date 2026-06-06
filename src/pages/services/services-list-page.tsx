@@ -6,10 +6,12 @@ import {ProviderAny} from "@/shared/providers/base";
 import {yandexBankTransactions} from "@/shared/providers/yandex_bank_transactions";
 import {lifeMartProducts} from "@/shared/providers/lifemart_products";
 import {yandexLavkaProducts} from "@/shared/providers/yandex_lavka_products";
+import {sberTransactions} from "@/shared/providers/sber_transactions";
 
 const services = [
     tBankTransactions,
     yandexBankTransactions,
+    sberTransactions,
     yandexLavkaProducts,
     lifeMartProducts,
 ];

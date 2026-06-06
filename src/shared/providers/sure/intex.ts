@@ -1,18 +1,51 @@
 import {SureInternalApi} from "@/shared/providers/sure/sureInternalClient/base";
 import {Api as SureExternalApi} from "@/shared/providers/sure/sureClient/Api";
 import {AccountCollection, AccountDetail} from "./sureClient/data-contracts";
-import {Account, Transaction} from "@/shared/providers/base";
+import {Account, ProviderFormatCSV, ProviderSync, Transaction} from "@/shared/providers/base";
 import {mapAccountToParams} from "@/shared/providers/sure/map";
 
 const MAX_PAGES = 1000;
 
-export class SureService {
+export class SureService implements ProviderSync, ProviderFormatCSV{
     private readonly internalApi: SureInternalApi;
     private externalApi: SureExternalApi | undefined;
 
     constructor(baseUrl: string) {
         this.internalApi = new SureInternalApi(baseUrl)
         this.externalApi = undefined;
+    }
+
+
+    getName(): string{
+        return "Sure"
+    }
+
+    async accountsToCSV(accounts: Account[]): Promise<any[]> {
+        return accounts.map(a => ({
+            name: a.name,
+            currency: a.currency,
+            opening_balance_date: a.opening_balance_date,
+            institution_name: a.institution_name,
+            institution_domain: a.institution_domain,
+            subtype: a.subtype,
+            accountable_type: a.accountable_type || '',
+            notes: a.notes || '',
+        }));
+    }
+
+    async transactionsToCSV(transactions: Transaction[]): Promise<any[]> {
+        return transactions.map(t => ({
+            date: t.date,
+            amount: t.amount,
+            name: t.name,
+            description: t.description || '',
+            notes: t.notes || '',
+            currency: t.currency,
+            nature: t.nature,
+            external_id: t.external_id,
+            source: t.source,
+            external_account_id: t.external_account_id,
+        }));
     }
 
     private async getInternalApi(): Promise<SureInternalApi> {

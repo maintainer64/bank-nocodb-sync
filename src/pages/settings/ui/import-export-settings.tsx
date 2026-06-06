@@ -5,7 +5,10 @@ import {downloadFile} from "@/shared/utils";
 import {AsyncButton} from "@/components/ui/button";
 
 export const ImportExportSettings = () => {
-    const [url, setUrl] = useUniversalStorage('sure-url', '');
+    const [sureUrl, setSureUrl] = useUniversalStorage('sure-url', '');
+    const [fireflyUrl, setFireflyUrl] = useUniversalStorage('firefly-url', '');
+    const [fireflyToken, setFireflyToken] = useUniversalStorage('firefly-token', '');
+    const [exportType, setExportType] = useUniversalStorage('export-type', 'csv');
     const [max, setMax] = useUniversalStorage('general-max-transactions', '1000');
     const importSettings = (event: Event) => {
         const input = event.target as HTMLInputElement;
@@ -18,9 +21,17 @@ export const ImportExportSettings = () => {
             try {
                 const settings = JSON.parse(e.target?.result as string);
 
-                // Обновляем все настройки
                 if (settings['sure-url'] !== undefined) {
-                    setUrl(settings['sure-url']);
+                    setSureUrl(settings['sure-url']);
+                }
+                if (settings['firefly-url'] !== undefined) {
+                    setFireflyUrl(settings['firefly-url']);
+                }
+                if (settings['firefly-token'] !== undefined) {
+                    setFireflyToken(settings['firefly-token']);
+                }
+                if (settings['export-type'] !== undefined) {
+                    setExportType(settings['export-type']);
                 }
                 if (settings['general-max-transactions'] !== undefined) {
                     setMax(settings['general-max-transactions']);
@@ -30,7 +41,6 @@ export const ImportExportSettings = () => {
                 throw error
             }
 
-            // Сбрасываем input чтобы можно было выбрать тот же файл снова
             input.value = '';
         };
         reader.readAsText(file);
@@ -45,7 +55,10 @@ export const ImportExportSettings = () => {
                         loadingLabel="Сохранение..."
                         onClick={async () => {
                             const settings = {
-                                'sure-url': url(),
+                                'export-type': exportType(),
+                                'sure-url': sureUrl(),
+                                'firefly-url': fireflyUrl(),
+                                'firefly-token': fireflyToken(),
                                 'general-max-transactions': max()
                             }
                             downloadFile(

@@ -1,5 +1,6 @@
 import {Account, AccountTypeWithSubtype, getFullNotice, ProviderAny, ProviderParams, Transaction} from "./base";
 import {getCookieByName, getMaxTransactions} from "@/shared/utils";
+import {swFetch} from "@/shared/sw-fetch";
 
 const SETTINGS = {
     prefix: "tbank_",
@@ -47,7 +48,7 @@ async function getParamsOperation(params: Params) {
         method: "GET",
         credentials: 'include',
         redirect: "follow"
-    };
+    } as RequestInit;
 
     const now = new Date();
 
@@ -65,9 +66,9 @@ async function getParamsOperation(params: Params) {
         start: params.rangeStart || firstDay.getTime(),
         accounts: params.accounts || '',
     } as any);
-    const response = await fetch(
+    const response = await swFetch(
         `${SETTINGS.baseUrl}/operations?${searchParams.toString()}`,
-        requestOptions as RequestInit
+        requestOptions,
     );
     return await response.json();
 }
@@ -79,16 +80,16 @@ async function getAccounts() {
         method: "GET",
         credentials: 'include',
         redirect: "follow"
-    };
+    } as RequestInit;
     const searchParams = new URLSearchParams({
         appName: 'supreme',
         appVersion: '0.0.1',
         origin: 'web,ib5,platform',
         sessionid: sessionId,
     } as any);
-    const response = await fetch(
+    const response = await swFetch(
         `${SETTINGS.baseUrl}/accounts_light_ib?${searchParams.toString()}`,
-        requestOptions as RequestInit
+        requestOptions,
     );
     return await response.json();
 }
